@@ -1,8 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import { createUseStyles } from "react-jss";
+import "./App.css";
+
+const useStyles = createUseStyles({
+  myButton: {
+    color: "green",
+    margin: {
+      // jss-plugin-expand gives more readable syntax
+      top: 5, // jss-plugin-default-unit makes this 5px
+      right: 0,
+      bottom: 0,
+      left: "1rem",
+    },
+    "& span": {
+      // jss-plugin-nested applies this to a child span
+      fontWeight: "bold", // jss-plugin-camel-case turns this into 'font-weight'
+    },
+  },
+  myLabel: {
+    fontStyle: "italic",
+  },
+});
 
 function App() {
+  const classes = useStyles();
+
   return (
     <div className="App">
       <header className="App-header">
@@ -19,6 +42,11 @@ function App() {
           Learn React
         </a>
       </header>
+      <button className={classes.myButton}>
+        <span className={classes.myLabel}>
+          <span>Submit</span>
+        </span>
+      </button>
     </div>
   );
 }
