@@ -4,6 +4,14 @@ import { createUseStyles } from "react-jss";
 import "./App.css";
 
 const useStyles = createUseStyles({
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "6rem",
+    minHeight: "100vh",
+  },
   myButton: {
     color: "green",
     margin: {
@@ -27,8 +35,8 @@ function App() {
   const classes = useStyles();
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <div>
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
@@ -41,12 +49,13 @@ function App() {
         >
           Learn React
         </a>
-      </header>
-      <button className={classes.myButton}>
+      </header> */}
+      <main className={classes.main}>Hi</main>
+      {/* <button className={classes.myButton}>
         <span className={classes.myLabel}>
           <span>Submit</span>
         </span>
-      </button>
+      </button> */}
     </div>
   );
 }
