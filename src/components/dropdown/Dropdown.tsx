@@ -1,6 +1,7 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
 import useDropdown from "../../hooks/useDropdown";
+import useKeyPress from "../../hooks/utils/useKeyPress";
 import ScrollBar from "../scrollbar/ScrollBar";
 
 const useStyles = createUseStyles({
@@ -62,6 +63,10 @@ const useStyles = createUseStyles({
       color: "#627ad4",
     },
   },
+  hover: {
+    background: "#f2f4ff",
+    color: "#627ad4",
+  },
   active: {
     background: "#f2f4ff",
     color: "#627ad4",
@@ -81,21 +86,57 @@ type DropdownListType = {
 };
 
 const DropdownList: React.FC<DropdownListType> = ({
-  list,
+  list = [],
   defaultOpen,
   defaultLabel,
 }): React.ReactElement => {
-  const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
   const classes = useStyles();
-
+  const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
   const [selectedOption, setSelectedOption] = React.useState<
     string | undefined
   >(defaultLabel);
+  const [options, setOptions] = React.useState<Array<string>>(list);
 
-  const [options, setOptions] = React.useState<Array<string> | undefined>(list);
+  // keyboard travers
+  const reducer = (
+    state: { selectedIndex: number },
+    action: { type: string; payload?: any }
+  ) => {
+    switch (action.type) {
+      case "arrowUp":
+        return {
+          selectedIndex:
+            state.selectedIndex !== 0
+              ? state.selectedIndex - 1
+              : options.length - 1,
+        };
+      case "arrowDown":
+        return {
+          selectedIndex:
+            state.selectedIndex !== options.length - 1
+              ? state.selectedIndex + 1
+              : 0,
+        };
+      case "select":
+        return { selectedIndex: action.payload };
+      default:
+        throw new Error();
+    }
+  };
+  const arrowUpPressed = useKeyPress("ArrowUp");
+  const arrowDownPressed = useKeyPress("ArrowDown");
+  const [state, dispatch] = React.useReducer(reducer, { selectedIndex: 0 });
 
-  const onSelect = (value: string) => () => {
+  React.useEffect(() => {
+    if (arrowUpPressed) dispatch({ type: "arrowUp" });
+  }, [arrowUpPressed]);
+  React.useEffect(() => {
+    if (arrowDownPressed) dispatch({ type: "arrowDown" });
+  }, [arrowDownPressed]);
+
+  const onSelect = (value: string, idx: number) => () => {
     setSelectedOption(value);
+    dispatch({ type: "select", payload: idx });
     close();
   };
 
@@ -113,15 +154,16 @@ const DropdownList: React.FC<DropdownListType> = ({
         <ScrollBar className={classes.list}>
           <ul>
             {!options && <li>empty</li>}
-            {options?.map((option) => (
+            {options?.map((option, i) => (
               <li
                 className={[
                   classes.item,
                   selectedOption == option && classes.active,
+                  i === state.selectedIndex && classes.hover,
                 ]
                   .join(" ")
                   .trim()}
-                onClick={onSelect(option)}
+                onClick={onSelect(option, i)}
                 key={option}
               >
                 {option}
