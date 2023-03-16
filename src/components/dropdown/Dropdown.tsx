@@ -1,35 +1,41 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
-import useClickAway from "../../hooks/utils/useClickAway";
+import useDropdown from "../../hooks/useDropdown";
 const useStyles = createUseStyles({});
 
-const Items: Array<string> = ["item1", "item2", "item3"];
+type DropdownListType = {
+  list?: Array<string>;
+  defaultOpen?: boolean;
+  defaultLabel?: string;
+};
 
-const DropdownList: React.FC = (): React.ReactElement => {
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = React.useState<string | null>(
-    "--Select Item--"
-  );
+const DropdownList: React.FC<DropdownListType> = ({
+  list,
+  defaultOpen,
+  defaultLabel,
+}): React.ReactElement => {
+  const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
+  const [selectedOption, setSelectedOption] = React.useState<
+    string | undefined
+  >(defaultLabel);
 
-  useClickAway(dropdownRef, () => setIsOpen(false));
-
-  const toggling = () => setIsOpen(!isOpen);
+  const [options, setOptions] = React.useState<Array<string> | undefined>(list);
 
   const onSelect = (value: string) => () => {
     setSelectedOption(value);
-    setIsOpen(false);
+    close();
   };
 
   return (
-    <div ref={dropdownRef}>
+    <div ref={containerRef}>
       <button onClick={toggling}>{selectedOption}</button>
       {isOpen && (
         <div>
           <ul>
-            {Items.map((item) => (
-              <li onClick={onSelect(item)} key={Math.random()}>
-                {item}
+            {!options && <li>empty</li>}
+            {options?.map((option) => (
+              <li onClick={onSelect(option)} key={Math.random()}>
+                {option}
               </li>
             ))}
           </ul>
@@ -37,6 +43,12 @@ const DropdownList: React.FC = (): React.ReactElement => {
       )}
     </div>
   );
+};
+
+DropdownList.defaultProps = {
+  list: ["item1", "item2", "item3"],
+  defaultOpen: false,
+  defaultLabel: "--Select Item--",
 };
 
 export default DropdownList;

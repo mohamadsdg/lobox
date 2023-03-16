@@ -32,7 +32,7 @@ const useStyles = createUseStyles({
   },
 });
 
-function App() {
+const App: React.FC = (): React.ReactElement => {
   const classes = useStyles();
 
   return (
@@ -62,6 +62,6 @@ function App() {
       </button> */}
     </div>
   );
-}
+};
 
 export default App;
