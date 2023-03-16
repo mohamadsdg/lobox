@@ -1,6 +1,7 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
 import useDropdown from "../../hooks/useDropdown";
+import ScrollBar from "../scrollbar/ScrollBar";
 
 const useStyles = createUseStyles({
   root: {
@@ -10,7 +11,7 @@ const useStyles = createUseStyles({
     background: "#ffffff",
     border: "1px solid #ced4da",
     transition: "ease 0.2s",
-    borderRadius: "6px",
+    borderRadius: "10px",
     padding: "0.75rem 0.75rem",
     cursor: "pointer",
     position: "relative",
@@ -39,16 +40,16 @@ const useStyles = createUseStyles({
   },
   list: {
     backgroundColor: "#fff",
-    transform: "translateY(5px)",
-    borderRadius: "6px",
+    transform: "translateY(6px)",
+    border: "1px solid #ced4da",
+    borderRadius: "10px",
     padding: "15px",
+    height: "300px",
     "& ul": {
       listStyleType: "none",
       padding: 0,
       margin: 0,
     },
-    maxHeight: "60px",
-    overflowY: "scroll",
   },
   item: {
     padding: "10px",
@@ -85,7 +86,7 @@ const DropdownList: React.FC<DropdownListType> = ({
   defaultLabel,
 }): React.ReactElement => {
   const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
-  const classes = useStyles({ theme: { isOpen } });
+  const classes = useStyles();
 
   const [selectedOption, setSelectedOption] = React.useState<
     string | undefined
@@ -109,7 +110,7 @@ const DropdownList: React.FC<DropdownListType> = ({
         {selectedOption}
       </div>
       {isOpen && (
-        <div className={classes.list}>
+        <ScrollBar className={classes.list}>
           <ul>
             {!options && <li>empty</li>}
             {options?.map((option) => (
@@ -127,14 +128,24 @@ const DropdownList: React.FC<DropdownListType> = ({
               </li>
             ))}
           </ul>
-        </div>
+        </ScrollBar>
       )}
     </div>
   );
 };
 
 DropdownList.defaultProps = {
-  list: ["item1", "item2", "item3"],
+  list: [
+    "item1",
+    "item2",
+    "item3",
+    "item4",
+    "item6",
+    "item7",
+    "item8",
+    "item9",
+    "item10",
+  ],
   defaultOpen: false,
   defaultLabel: "--Select Item--",
 };
