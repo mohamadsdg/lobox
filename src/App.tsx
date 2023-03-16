@@ -1,6 +1,7 @@
 import React from "react";
 import logo from "./logo.svg";
 import { createUseStyles } from "react-jss";
+import DropdownList from "./components/dropdown/Dropdown";
 import "./App.css";
 
 const useStyles = createUseStyles({
@@ -12,22 +13,22 @@ const useStyles = createUseStyles({
     padding: "6rem",
     minHeight: "100vh",
   },
-  myButton: {
-    color: "green",
-    margin: {
-      // jss-plugin-expand gives more readable syntax
-      top: 5, // jss-plugin-default-unit makes this 5px
-      right: 0,
-      bottom: 0,
-      left: "1rem",
-    },
-    "& span": {
-      // jss-plugin-nested applies this to a child span
-      fontWeight: "bold", // jss-plugin-camel-case turns this into 'font-weight'
-    },
-  },
-  myLabel: {
-    fontStyle: "italic",
+  entry: {
+    // color: "rgb(205, 205, 205)",
+    // width: "100%",
+    // height: "100%",
+    // fontSize: "15px",
+    // borderWidth: "1px",
+    // borderStyle: "solid",
+    // borderColor: "rgb(57, 57, 57)",
+    // borderImage: "initial",
+    // padding: "10px 10px 10px 16px",
+    // // background: "padding-box rgb(36, 36, 36)",
+    // outline: "none",
+    // borderRadius: "20px",
+    // "&:focus": {
+    //   borderColor: "#5384EE",
+    // },
   },
 });
 
@@ -50,7 +51,10 @@ function App() {
           Learn React
         </a>
       </header> */}
-      <main className={classes.main}>Hi</main>
+      <main className={classes.main}>
+        {/* <input className={classes.entry} contentEditable={true} /> */}
+        <DropdownList />
+      </main>
       {/* <button className={classes.myButton}>
         <span className={classes.myLabel}>
           <span>Submit</span>
