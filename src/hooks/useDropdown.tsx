@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, FC } from "react";
+import { useState, useCallback, useRef } from "react";
 import useClickAway from "./utils/useClickAway";
 
 const useDropdown = (defaultOpen: boolean = false) => {
