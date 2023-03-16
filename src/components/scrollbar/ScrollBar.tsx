@@ -195,7 +195,6 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
         ]
           .join(" ")
           .trim()}
-        // style={{ opacity: hovering ? 1 : 0 }}
       >
         <div
           className={classes.scrollThumb}

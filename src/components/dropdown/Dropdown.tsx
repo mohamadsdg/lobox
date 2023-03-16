@@ -42,7 +42,7 @@ const useStyles = createUseStyles({
     backgroundColor: "#fff",
     transform: "translateY(6px)",
     border: "1px solid #ced4da",
-    borderRadius: "10px",
+    borderRadius: "15px",
     padding: "15px",
     height: "300px",
     "& ul": {
