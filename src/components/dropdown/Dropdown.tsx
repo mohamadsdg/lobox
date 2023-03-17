@@ -45,7 +45,7 @@ const useStyles = createUseStyles({
     border: "1px solid #ced4da",
     borderRadius: "15px",
     padding: "15px",
-    height: "300px",
+    height: "200px",
     "& ul": {
       listStyleType: "none",
       padding: 0,
@@ -118,6 +118,8 @@ const DropdownList: React.FC<DropdownListType> = ({
               : 0,
         };
       case "select":
+        setSelectedOption(options[action.payload]);
+        close();
         return { selectedIndex: action.payload };
       default:
         throw new Error("unhandle type");
@@ -136,18 +138,11 @@ const DropdownList: React.FC<DropdownListType> = ({
   React.useEffect(() => {
     if (enterPressed == "Enter") {
       dispatch({ type: "select", payload: state.selectedIndex });
-      lookUpSelectOptionByIndex();
     }
   }, [enterPressed]);
-  const lookUpSelectOptionByIndex = React.useCallback(() => {
-    setSelectedOption(options[state.selectedIndex]);
-    close();
-  }, [enterPressed]);
 
-  const onSelect = (value: string, idx: number) => () => {
-    setSelectedOption(value);
+  const onSelect = (_value: string, idx: number) => () => {
     dispatch({ type: "select", payload: idx });
-    close();
   };
 
   return (
