@@ -141,6 +141,22 @@ const DropdownList: React.FC<DropdownListType> = ({
     }
   }, [enterPressed]);
 
+  // manual scrolling
+  // TODO: I didn't have time to tarce the algoritem (later trace it)
+  const handleManual = React.useCallback(
+    (ref: any) => {
+      if (arrowDownPressed == KeyStateEnum.DOWN && state.selectedIndex > 2) {
+        ref.scrollTop += 100;
+      } else if (
+        arrowUpPressed == KeyStateEnum.UP &&
+        state.selectedIndex < options.length - 2
+      ) {
+        ref.scrollTop -= 100;
+      }
+    },
+    [arrowUpPressed, arrowDownPressed]
+  );
+
   const onSelect = (_value: string, idx: number) => () => {
     dispatch({ type: "select", payload: idx });
   };
@@ -156,7 +172,7 @@ const DropdownList: React.FC<DropdownListType> = ({
         {selectedOption}
       </div>
       {isOpen && (
-        <ScrollBar className={classes.list}>
+        <ScrollBar className={classes.list} manualScrolling={handleManual}>
           <ul>
             {!options && <li>empty</li>}
             {options?.map((option, i) => (
@@ -187,11 +203,11 @@ DropdownList.defaultProps = {
     "item2",
     "item3",
     "item4",
+    "item5",
     "item6",
     "item7",
     "item8",
     "item9",
-    "item10",
   ],
   defaultOpen: false,
   defaultLabel: "--Select Item--",

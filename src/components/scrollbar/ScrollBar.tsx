@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({
@@ -50,6 +50,7 @@ interface ScrollBarProps {
   style?: React.CSSProperties;
   children?: React.ReactNode;
   placement?: "left" | "right";
+  manualScrolling?: (ref: any) => void;
 }
 
 const ScrollBar: React.FC<ScrollBarProps> = ({
@@ -57,6 +58,7 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
   className,
   placement,
   style,
+  manualScrolling,
   ...otherProps
 }) => {
   const classes = useStyles();
@@ -130,7 +132,6 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
     const scrollHostElement = scrollHostRef.current;
     const { scrollTop, scrollHeight, offsetHeight } =
       scrollHostElement as HTMLDivElement;
-
     let newTop = (scrollTop / scrollHeight) * offsetHeight + 15;
     newTop = Math.min(newTop, offsetHeight - scrollBoxHeight);
     setScrollBoxTop(newTop);
@@ -177,6 +178,14 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
       document.removeEventListener("mouseleave", handleDocumentMouseUp);
     };
   }, [handleDocumentMouseMove, handleDocumentMouseUp]);
+
+  const handleManuall = useCallback(() => {
+    return manualScrolling?.(scrollHostRef.current);
+  }, [manualScrolling]);
+
+  React.useEffect(() => {
+    handleManuall();
+  }, [handleManuall]);
 
   return (
     <div
