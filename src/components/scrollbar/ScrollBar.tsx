@@ -171,7 +171,7 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
     document.addEventListener("mousemove", handleDocumentMouseMove);
     document.addEventListener("mouseup", handleDocumentMouseUp);
     document.addEventListener("mouseleave", handleDocumentMouseUp);
-    return function cleanup(): void {
+    return () => {
       document.removeEventListener("mousemove", handleDocumentMouseMove);
       document.removeEventListener("mouseup", handleDocumentMouseUp);
       document.removeEventListener("mouseleave", handleDocumentMouseUp);

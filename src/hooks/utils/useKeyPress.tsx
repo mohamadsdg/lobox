@@ -1,27 +1,40 @@
 import { useEffect, useState } from "react";
 
-const useKeyPress = (targetKey: "ArrowUp" | "ArrowDown") => {
-  const [keyPressed, setKeyPressed] = useState(false);
-
+export enum KeyStateEnum {
+  UP = "up",
+  DOWN = "down",
+}
+/**
+ *
+ * @param targetKey Pick<KeyboardEvent, "key">
+ * @example "ArrowUp" | "ArrowDown" | "Enter" or any key
+ * @returns has been selected key
+ */
+const useKeyPress = (targetKey: "ArrowUp" | "ArrowDown" | string) => {
+  const [keyPressed, setKeyPressed] = useState<KeyStateEnum | string>("");
   useEffect(() => {
-    const downHandler = ({ key }: any) => {
+    const downHandler = ({ key }: KeyboardEvent) => {
       if (key === targetKey) {
-        setKeyPressed(true);
+        setKeyPressed(KeyStateEnum.DOWN);
       }
     };
-
-    const upHandler = ({ key }: any) => {
+    const upHandler = ({ key }: KeyboardEvent) => {
       if (key === targetKey) {
-        setKeyPressed(false);
+        setKeyPressed(KeyStateEnum.UP);
       }
     };
-
+    const pressHandler = ({ key }: KeyboardEvent) => {
+      if (key !== "ArrowUp" && key != "ArrowDown") {
+        setKeyPressed(key);
+      }
+    };
     window.addEventListener("keydown", downHandler);
     window.addEventListener("keyup", upHandler);
-
+    window.addEventListener("keypress", pressHandler);
     return () => {
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
+      window.removeEventListener("keypress", pressHandler);
     };
   }, [targetKey]);
 

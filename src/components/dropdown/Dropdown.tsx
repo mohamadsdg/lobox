@@ -1,7 +1,7 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
 import useDropdown from "../../hooks/useDropdown";
-import useKeyPress from "../../hooks/utils/useKeyPress";
+import useKeyPress, { KeyStateEnum } from "../../hooks/utils/useKeyPress";
 import ScrollBar from "../scrollbar/ScrollBar";
 
 const useStyles = createUseStyles({
@@ -97,7 +97,7 @@ const DropdownList: React.FC<DropdownListType> = ({
   >(defaultLabel);
   const [options, setOptions] = React.useState<Array<string>>(list);
 
-  // keyboard travers
+  // keyboard ability
   const reducer = (
     state: { selectedIndex: number },
     action: { type: string; payload?: any }
@@ -120,19 +120,29 @@ const DropdownList: React.FC<DropdownListType> = ({
       case "select":
         return { selectedIndex: action.payload };
       default:
-        throw new Error();
+        throw new Error("unhandle type");
     }
   };
+  const [state, dispatch] = React.useReducer(reducer, { selectedIndex: -1 });
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
-  const [state, dispatch] = React.useReducer(reducer, { selectedIndex: 0 });
-
+  const enterPressed = useKeyPress("Enter");
   React.useEffect(() => {
-    if (arrowUpPressed) dispatch({ type: "arrowUp" });
+    if (arrowUpPressed == KeyStateEnum.UP) dispatch({ type: "arrowUp" });
   }, [arrowUpPressed]);
   React.useEffect(() => {
-    if (arrowDownPressed) dispatch({ type: "arrowDown" });
+    if (arrowDownPressed == KeyStateEnum.DOWN) dispatch({ type: "arrowDown" });
   }, [arrowDownPressed]);
+  React.useEffect(() => {
+    if (enterPressed == "Enter") {
+      dispatch({ type: "select", payload: state.selectedIndex });
+      lookUpSelectOptionByIndex();
+    }
+  }, [enterPressed]);
+  const lookUpSelectOptionByIndex = React.useCallback(() => {
+    setSelectedOption(options[state.selectedIndex]);
+    close();
+  }, [enterPressed]);
 
   const onSelect = (value: string, idx: number) => () => {
     setSelectedOption(value);
@@ -158,8 +168,8 @@ const DropdownList: React.FC<DropdownListType> = ({
               <li
                 className={[
                   classes.item,
-                  selectedOption == option && classes.active,
-                  i === state.selectedIndex && classes.hover,
+                  selectedOption == option ? classes.active : "",
+                  i === state.selectedIndex ? classes.hover : "",
                 ]
                   .join(" ")
                   .trim()}
