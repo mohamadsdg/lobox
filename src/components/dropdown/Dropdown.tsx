@@ -70,6 +70,9 @@ const useStyles = createUseStyles({
       background: "#f2f4ff",
       color: "#627ad4",
     },
+    "&:focus": {
+      outline: "none",
+    },
   },
   hover: {
     background: "#f2f4ff",
@@ -108,6 +111,8 @@ const DropdownList: React.FC<DropdownListType> = ({
   const [scrollTop, setScrollTop] = React.useState<number>(0);
 
   // keyboard ability
+  const liRefs = React.useRef<Array<HTMLLIElement | null>>([]);
+
   const reducer = (
     state: { selectedIndex: number },
     action: { type: string; payload?: any }
@@ -142,12 +147,10 @@ const DropdownList: React.FC<DropdownListType> = ({
         throw new Error("unhandle type");
     }
   };
-  const liRefs = React.useRef<Array<HTMLLIElement | null>>([]);
 
   const [state, dispatch] = React.useReducer(reducer, { selectedIndex: -1 });
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
-  const enterPressed = useKeyPress("Enter");
 
   React.useEffect(() => {
     if (arrowUpPressed == KeyStateEnum.UP) dispatch({ type: "arrowUp" });
@@ -155,16 +158,12 @@ const DropdownList: React.FC<DropdownListType> = ({
   React.useEffect(() => {
     if (arrowDownPressed == KeyStateEnum.DOWN) dispatch({ type: "arrowDown" });
   }, [arrowDownPressed]);
-  React.useEffect(() => {
-    if (enterPressed == "Enter") {
-      dispatch({ type: "select", payload: state.selectedIndex });
-    }
-  }, [enterPressed]);
 
   function scrollToLi(i: number) {
     const li = liRefs.current[i];
     const cr = containerRef.current;
     if (!cr || !li) return;
+    li.focus();
     const liOffsetTop = li.offsetTop - cr.offsetTop;
     setScrollTop(liOffsetTop);
   }
@@ -173,11 +172,21 @@ const DropdownList: React.FC<DropdownListType> = ({
     dispatch({ type: "select", payload: idx });
   };
 
+  const handleKeyEnter = (
+    event: React.KeyboardEvent<HTMLLIElement>,
+    idx: number
+  ) => {
+    if (event.key === "Enter") {
+      dispatch({ type: "select", payload: idx });
+    }
+  };
+
   return (
     <div ref={containerRef} className={classes.root}>
       <div
         onClick={toggling}
         className={clsx(classes.label, { [classes.focus]: isOpen })}
+        aria-expanded={isOpen}
       >
         {selectedOption}
       </div>
@@ -200,6 +209,10 @@ const DropdownList: React.FC<DropdownListType> = ({
                 onClick={onSelect(option, i)}
                 key={option}
                 ref={(el) => (liRefs.current[i] = el)}
+                role="option"
+                aria-selected={i === state.selectedIndex}
+                tabIndex={0}
+                onKeyDown={(e) => handleKeyEnter(e, i)}
               >
                 {option}
               </li>
@@ -210,7 +223,6 @@ const DropdownList: React.FC<DropdownListType> = ({
     </div>
   );
 };
-
 DropdownList.defaultProps = {
   list: [
     "item1",
