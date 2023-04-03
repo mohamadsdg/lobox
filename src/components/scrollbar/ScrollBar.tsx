@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { createUseStyles } from "react-jss";
+import clsx from "clsx";
 
 const useStyles = createUseStyles({
   root: {
@@ -190,7 +191,7 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
   return (
     <div
       style={style}
-      className={[classes.root, className && className].join(" ").trim()}
+      className={clsx(classes.root, className)}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
     >
@@ -198,12 +199,10 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
         {children}
       </div>
       <div
-        className={[
+        className={clsx(
           classes.scrollTrack,
-          placement == "right" ? classes.trackRight : classes.trackLeft,
-        ]
-          .join(" ")
-          .trim()}
+          placement == "right" ? classes.trackRight : classes.trackLeft
+        )}
       >
         <div
           className={classes.scrollThumb}

@@ -1,5 +1,6 @@
 import React from "react";
 import { createUseStyles } from "react-jss";
+import clsx from "clsx";
 import useDropdown from "../../hooks/useDropdown";
 import useKeyPress, { KeyStateEnum } from "../../hooks/utils/useKeyPress";
 import ScrollBar from "../scrollbar/ScrollBar";
@@ -165,9 +166,7 @@ const DropdownList: React.FC<DropdownListType> = ({
     <div ref={containerRef} className={classes.root}>
       <div
         onClick={toggling}
-        className={[classes.label, isOpen ? classes.focus : ""]
-          .join(" ")
-          .trim()}
+        className={clsx(classes.label, { [classes.focus]: isOpen })}
       >
         {selectedOption}
       </div>
@@ -177,13 +176,11 @@ const DropdownList: React.FC<DropdownListType> = ({
             {!options && <li>empty</li>}
             {options?.map((option, i) => (
               <li
-                className={[
+                className={clsx(
                   classes.item,
-                  selectedOption == option ? classes.active : "",
-                  i === state.selectedIndex ? classes.hover : "",
-                ]
-                  .join(" ")
-                  .trim()}
+                  selectedOption == option && classes.active,
+                  i === state.selectedIndex && classes.hover
+                )}
                 onClick={onSelect(option, i)}
                 key={option}
               >
