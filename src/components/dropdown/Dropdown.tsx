@@ -16,7 +16,7 @@ const useStyles = createUseStyles({
     border: "1px solid #ced4da",
     transition: "ease 0.2s",
     borderRadius: "10px",
-    padding: "0.75rem 0.75rem",
+    // padding: "0.75rem 0.75rem",
     cursor: "pointer",
     position: "relative",
     outline: "none",
@@ -35,6 +35,14 @@ const useStyles = createUseStyles({
       position: "absolute",
       right: "20px",
       top: "20px",
+    },
+    "& input": {
+      display: "inline-block",
+      border: "none",
+      outline: "none",
+      width: "97%",
+      borderRadius: "10px",
+      padding: "1rem 0.75rem",
     },
   },
   focus: {
@@ -105,7 +113,8 @@ const DropdownList: React.FC<DropdownListType> = ({
   defaultLabel,
 }): React.ReactElement => {
   const classes = useStyles();
-  const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
+  const { containerRef, isOpen, toggling, close, open } =
+    useDropdown(defaultOpen);
   const [selectedOption, setSelectedOption] = React.useState<
     string | undefined
   >(defaultLabel);
@@ -171,43 +180,55 @@ const DropdownList: React.FC<DropdownListType> = ({
     }
   };
 
-  // adding new
+  // adding new Item
   const handleChange = (ev: any) => {
     setEntry(ev.target.value);
   };
   const handleNewEntry = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      const sanitizEntry = entry.trim();
+      if (!sanitizEntry) {
+        setSelectedOption(undefined);
+        return;
+      }
       const newOptions = new Set(options);
-      newOptions.add(entry.trim());
-      setOptions(Array.from(newOptions));
+      newOptions.add(sanitizEntry);
+      const ArrayNewOption = Array.from(newOptions);
+
+      // re-order
+      if (newOptions.size != options.length) {
+        const lastItem = ArrayNewOption.pop() as string;
+        ArrayNewOption.unshift(lastItem);
+      }
+
+      // update Options
+      setOptions(ArrayNewOption);
+
+      // select the newest or prev
+      const findSelected = ArrayNewOption.find((opt) => opt == sanitizEntry);
+      setSelectedOption(findSelected);
+
+      // back to early list
+      setScrollTop(0);
     }
   };
 
   return (
     <div ref={containerRef} className={classes.root}>
-      {/* <div
-        onClick={toggling}
-        className={clsx(classes.label, { [classes.focus]: isOpen })}
-        aria-expanded={isOpen}
-      >
-        {selectedOption}
-      </div> */}
       <div
-        onClick={toggling}
+        onClick={open}
         className={clsx(classes.label, { [classes.focus]: isOpen })}
         aria-expanded={isOpen}
       >
-        {selectedOption}
+        <input
+          type="text"
+          onClick={open}
+          value={entry}
+          onChange={handleChange}
+          placeholder="-- Item --"
+          onKeyDown={handleNewEntry}
+        />
       </div>
-      <input
-        type="text"
-        onClick={toggling}
-        className={clsx(classes.label, { [classes.focus]: isOpen })}
-        value={entry}
-        onChange={handleChange}
-        placeholder="-- Item --"
-        onKeyDown={handleNewEntry}
-      />
 
       {isOpen && (
         <CustomScroll
