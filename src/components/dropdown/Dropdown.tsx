@@ -19,6 +19,9 @@ const useStyles = createUseStyles({
     padding: "0.75rem 0.75rem",
     cursor: "pointer",
     position: "relative",
+    outline: "none",
+    display: "block",
+    width: "100%",
     "&:after": {
       content: '" "',
       width: "6px",
@@ -107,10 +110,11 @@ const DropdownList: React.FC<DropdownListType> = ({
     string | undefined
   >(defaultLabel);
   const [options, setOptions] = React.useState<Array<string>>(list);
-  const [scrollTop, setScrollTop] = React.useState<number>(0);
+  const [entry, setEntry] = React.useState("");
 
   // keyboard ability
   const liRefs = React.useRef<Array<HTMLLIElement | null>>([]);
+  const [scrollTop, setScrollTop] = React.useState<number>(0);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
@@ -133,6 +137,7 @@ const DropdownList: React.FC<DropdownListType> = ({
         break;
       case "select":
         setSelectedOption(options[optionIdx]);
+        setEntry(options[optionIdx]);
         close();
         setSelectedIndex(optionIdx);
         break;
@@ -140,14 +145,12 @@ const DropdownList: React.FC<DropdownListType> = ({
         throw new Error("unhandle type");
     }
   };
-
   React.useEffect(() => {
     if (arrowUpPressed == KeyStateEnum.UP) onSelectedIndex("arrowUp");
   }, [arrowUpPressed]);
   React.useEffect(() => {
     if (arrowDownPressed == KeyStateEnum.DOWN) onSelectedIndex("arrowDown");
   }, [arrowDownPressed]);
-
   function scrollToLi(i: number) {
     const li = liRefs.current[i];
     const cr = containerRef.current;
@@ -156,11 +159,9 @@ const DropdownList: React.FC<DropdownListType> = ({
     const liOffsetTop = li.offsetTop - cr.offsetTop;
     setScrollTop(liOffsetTop);
   }
-
   const onSelect = (_value: string, idx: number) => () => {
     onSelectedIndex("select", idx);
   };
-
   const handleKeyEnter = (
     event: React.KeyboardEvent<HTMLLIElement>,
     idx: number
@@ -170,8 +171,27 @@ const DropdownList: React.FC<DropdownListType> = ({
     }
   };
 
+  // adding new
+  const handleChange = (ev: any) => {
+    setEntry(ev.target.value);
+  };
+  const handleNewEntry = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const newOptions = new Set(options);
+      newOptions.add(entry.trim());
+      setOptions(Array.from(newOptions));
+    }
+  };
+
   return (
     <div ref={containerRef} className={classes.root}>
+      {/* <div
+        onClick={toggling}
+        className={clsx(classes.label, { [classes.focus]: isOpen })}
+        aria-expanded={isOpen}
+      >
+        {selectedOption}
+      </div> */}
       <div
         onClick={toggling}
         className={clsx(classes.label, { [classes.focus]: isOpen })}
@@ -179,6 +199,16 @@ const DropdownList: React.FC<DropdownListType> = ({
       >
         {selectedOption}
       </div>
+      <input
+        type="text"
+        onClick={toggling}
+        className={clsx(classes.label, { [classes.focus]: isOpen })}
+        value={entry}
+        onChange={handleChange}
+        placeholder="-- Item --"
+        onKeyDown={handleNewEntry}
+      />
+
       {isOpen && (
         <CustomScroll
           className={classes.list}
