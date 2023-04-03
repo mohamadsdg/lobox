@@ -102,7 +102,6 @@ const DropdownList: React.FC<DropdownListType> = ({
   defaultLabel,
 }): React.ReactElement => {
   const classes = useStyles();
-
   const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
   const [selectedOption, setSelectedOption] = React.useState<
     string | undefined
@@ -112,51 +111,41 @@ const DropdownList: React.FC<DropdownListType> = ({
 
   // keyboard ability
   const liRefs = React.useRef<Array<HTMLLIElement | null>>([]);
+  const [selectedIndex, setSelectedIndex] = React.useState(-1);
+  const arrowUpPressed = useKeyPress("ArrowUp");
+  const arrowDownPressed = useKeyPress("ArrowDown");
 
-  const reducer = (
-    state: { selectedIndex: number },
-    action: { type: string; payload?: any }
+  const onSelectedIndex = (
+    type: "arrowDown" | "arrowUp" | "select",
+    optionIdx = selectedIndex
   ) => {
     let newIndex;
-    switch (action.type) {
+    switch (type) {
       case "arrowUp":
-        newIndex =
-          state.selectedIndex !== 0
-            ? state.selectedIndex - 1
-            : options.length - 1;
-
+        newIndex = selectedIndex !== 0 ? selectedIndex - 1 : options.length - 1;
         scrollToLi(newIndex);
-        return {
-          selectedIndex: newIndex,
-        };
+        setSelectedIndex(newIndex);
+        break;
       case "arrowDown":
-        newIndex =
-          state.selectedIndex !== options.length - 1
-            ? state.selectedIndex + 1
-            : 0;
-
+        newIndex = selectedIndex !== options.length - 1 ? selectedIndex + 1 : 0;
         scrollToLi(newIndex);
-        return {
-          selectedIndex: newIndex,
-        };
+        setSelectedIndex(newIndex);
+        break;
       case "select":
-        setSelectedOption(options[action.payload]);
+        setSelectedOption(options[optionIdx]);
         close();
-        return { selectedIndex: action.payload };
+        setSelectedIndex(optionIdx);
+        break;
       default:
         throw new Error("unhandle type");
     }
   };
 
-  const [state, dispatch] = React.useReducer(reducer, { selectedIndex: -1 });
-  const arrowUpPressed = useKeyPress("ArrowUp");
-  const arrowDownPressed = useKeyPress("ArrowDown");
-
   React.useEffect(() => {
-    if (arrowUpPressed == KeyStateEnum.UP) dispatch({ type: "arrowUp" });
+    if (arrowUpPressed == KeyStateEnum.UP) onSelectedIndex("arrowUp");
   }, [arrowUpPressed]);
   React.useEffect(() => {
-    if (arrowDownPressed == KeyStateEnum.DOWN) dispatch({ type: "arrowDown" });
+    if (arrowDownPressed == KeyStateEnum.DOWN) onSelectedIndex("arrowDown");
   }, [arrowDownPressed]);
 
   function scrollToLi(i: number) {
@@ -169,7 +158,7 @@ const DropdownList: React.FC<DropdownListType> = ({
   }
 
   const onSelect = (_value: string, idx: number) => () => {
-    dispatch({ type: "select", payload: idx });
+    onSelectedIndex("select", idx);
   };
 
   const handleKeyEnter = (
@@ -177,7 +166,7 @@ const DropdownList: React.FC<DropdownListType> = ({
     idx: number
   ) => {
     if (event.key === "Enter") {
-      dispatch({ type: "select", payload: idx });
+      onSelectedIndex("select", idx);
     }
   };
 
@@ -204,13 +193,13 @@ const DropdownList: React.FC<DropdownListType> = ({
                 className={clsx(
                   classes.item,
                   selectedOption == option && classes.active,
-                  i === state.selectedIndex && classes.hover
+                  i === selectedIndex && classes.hover
                 )}
                 onClick={onSelect(option, i)}
                 key={option}
                 ref={(el) => (liRefs.current[i] = el)}
                 role="option"
-                aria-selected={i === state.selectedIndex}
+                aria-selected={i === selectedIndex}
                 tabIndex={0}
                 onKeyDown={(e) => handleKeyEnter(e, i)}
               >
