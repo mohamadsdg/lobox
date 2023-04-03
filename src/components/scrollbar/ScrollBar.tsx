@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { createUseStyles } from "react-jss";
 import clsx from "clsx";
 
@@ -52,6 +52,7 @@ interface ScrollBarProps {
   children?: React.ReactNode;
   placement?: "left" | "right";
   manualScrolling?: (ref: any) => void;
+  scrollTo?: number;
 }
 
 const ScrollBar: React.FC<ScrollBarProps> = ({
@@ -60,6 +61,7 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
   placement,
   style,
   manualScrolling,
+  scrollTo = 15,
   ...otherProps
 }) => {
   const classes = useStyles();
@@ -69,6 +71,10 @@ const ScrollBar: React.FC<ScrollBarProps> = ({
   const [lastScrollThumbPosition, setScrollThumbPosition] = React.useState(0);
   const [isDragging, setDragging] = React.useState(false);
   const scrollHostRef = React.useRef<HTMLDivElement>(null);
+
+  // const _scrollTo = useMemo(() => {
+  //   setScrollBoxTop(scrollTo);
+  // }, [scrollTo]);
 
   const handleMouseOver = React.useCallback(() => {
     if (!hovering) setHovering(true);

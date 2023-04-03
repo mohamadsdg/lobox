@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "./logo.svg";
 import { createUseStyles } from "react-jss";
 import DropdownList from "./components/dropdown/Dropdown";
 import "./App.css";
@@ -11,7 +10,7 @@ const useStyles = createUseStyles({
     justifyContent: "space-between",
     alignItems: "center",
     padding: "6rem",
-    minHeight: "100vh",
+    minHeight: "100%",
   },
   entry: {
     // color: "rgb(205, 205, 205)",
@@ -37,29 +36,10 @@ const App: React.FC = (): React.ReactElement => {
 
   return (
     <div>
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
       <main className={classes.main}>
         {/* <input className={classes.entry} contentEditable={true} /> */}
         <DropdownList />
       </main>
-      {/* <button className={classes.myButton}>
-        <span className={classes.myLabel}>
-          <span>Submit</span>
-        </span>
-      </button> */}
     </div>
   );
 };

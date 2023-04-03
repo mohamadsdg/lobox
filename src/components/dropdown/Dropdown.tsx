@@ -3,11 +3,13 @@ import { createUseStyles } from "react-jss";
 import clsx from "clsx";
 import useDropdown from "../../hooks/useDropdown";
 import useKeyPress, { KeyStateEnum } from "../../hooks/utils/useKeyPress";
-import ScrollBar from "../scrollbar/ScrollBar";
+// import ScrollBar from "../scrollbar/ScrollBar";
+import CustomScroll from "../scrollbar/Custom";
 
 const useStyles = createUseStyles({
   root: {
     width: "100%",
+    position: "relative",
   },
   label: {
     background: "#ffffff",
@@ -46,7 +48,12 @@ const useStyles = createUseStyles({
     border: "1px solid #ced4da",
     borderRadius: "15px",
     padding: "15px",
-    height: "200px",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    minHeight: "200px",
+    // height: 200,
     "& ul": {
       listStyleType: "none",
       padding: 0,
@@ -92,31 +99,40 @@ const DropdownList: React.FC<DropdownListType> = ({
   defaultLabel,
 }): React.ReactElement => {
   const classes = useStyles();
+
   const { containerRef, isOpen, toggling, close } = useDropdown(defaultOpen);
   const [selectedOption, setSelectedOption] = React.useState<
     string | undefined
   >(defaultLabel);
   const [options, setOptions] = React.useState<Array<string>>(list);
+  const [scrollTop, setScrollTop] = React.useState<number>(0);
 
   // keyboard ability
   const reducer = (
     state: { selectedIndex: number },
     action: { type: string; payload?: any }
   ) => {
+    let newIndex;
     switch (action.type) {
       case "arrowUp":
+        newIndex =
+          state.selectedIndex !== 0
+            ? state.selectedIndex - 1
+            : options.length - 1;
+
+        scrollToLi(newIndex);
         return {
-          selectedIndex:
-            state.selectedIndex !== 0
-              ? state.selectedIndex - 1
-              : options.length - 1,
+          selectedIndex: newIndex,
         };
       case "arrowDown":
+        newIndex =
+          state.selectedIndex !== options.length - 1
+            ? state.selectedIndex + 1
+            : 0;
+
+        scrollToLi(newIndex);
         return {
-          selectedIndex:
-            state.selectedIndex !== options.length - 1
-              ? state.selectedIndex + 1
-              : 0,
+          selectedIndex: newIndex,
         };
       case "select":
         setSelectedOption(options[action.payload]);
@@ -126,10 +142,13 @@ const DropdownList: React.FC<DropdownListType> = ({
         throw new Error("unhandle type");
     }
   };
+  const liRefs = React.useRef<Array<HTMLLIElement | null>>([]);
+
   const [state, dispatch] = React.useReducer(reducer, { selectedIndex: -1 });
   const arrowUpPressed = useKeyPress("ArrowUp");
   const arrowDownPressed = useKeyPress("ArrowDown");
   const enterPressed = useKeyPress("Enter");
+
   React.useEffect(() => {
     if (arrowUpPressed == KeyStateEnum.UP) dispatch({ type: "arrowUp" });
   }, [arrowUpPressed]);
@@ -142,21 +161,13 @@ const DropdownList: React.FC<DropdownListType> = ({
     }
   }, [enterPressed]);
 
-  // manual scrolling
-  // TODO: I didn't have time to tarce the algoritem (later trace it)
-  const handleManual = React.useCallback(
-    (ref: any) => {
-      if (arrowDownPressed == KeyStateEnum.DOWN && state.selectedIndex > 2) {
-        ref.scrollTop += 100;
-      } else if (
-        arrowUpPressed == KeyStateEnum.UP &&
-        state.selectedIndex < options.length - 2
-      ) {
-        ref.scrollTop -= 100;
-      }
-    },
-    [arrowUpPressed, arrowDownPressed]
-  );
+  function scrollToLi(i: number) {
+    const li = liRefs.current[i];
+    const cr = containerRef.current;
+    if (!cr || !li) return;
+    const liOffsetTop = li.offsetTop - cr.offsetTop;
+    setScrollTop(liOffsetTop);
+  }
 
   const onSelect = (_value: string, idx: number) => () => {
     dispatch({ type: "select", payload: idx });
@@ -171,7 +182,12 @@ const DropdownList: React.FC<DropdownListType> = ({
         {selectedOption}
       </div>
       {isOpen && (
-        <ScrollBar className={classes.list} manualScrolling={handleManual}>
+        <CustomScroll
+          className={classes.list}
+          heightRelativeToParent="calc(100% - 20px)"
+          keepAtBottom={true}
+          scrollTo={scrollTop}
+        >
           <ul>
             {!options && <li>empty</li>}
             {options?.map((option, i) => (
@@ -183,12 +199,13 @@ const DropdownList: React.FC<DropdownListType> = ({
                 )}
                 onClick={onSelect(option, i)}
                 key={option}
+                ref={(el) => (liRefs.current[i] = el)}
               >
                 {option}
               </li>
             ))}
           </ul>
-        </ScrollBar>
+        </CustomScroll>
       )}
     </div>
   );
